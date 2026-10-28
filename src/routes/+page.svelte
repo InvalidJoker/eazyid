@@ -1,25 +1,29 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { rpc } from '#lib/rpc.js';
-	import * as Card from '#lib/components/ui/card/index.js';
+	import { invalidateAll } from '$app/navigation';
+	import { authClient } from '#lib/auth-client.js';
+	import AuthShell from '#lib/components/auth-shell.svelte';
+	import { Button } from '#lib/components/ui/button/index.js';
+	import type { PageProps } from './$types';
 
-	let status = $state('checking...');
+	let { data }: PageProps = $props();
 
-	onMount(async () => {
-		try {
-			const result = await rpc.system.health();
-			status = `${result.status} (${result.time})`;
-		} catch {
-			status = 'unreachable';
-		}
-	});
+	async function signOut() {
+		await authClient.signOut();
+		await invalidateAll();
+	}
 </script>
 
-<main class="flex min-h-screen items-center justify-center p-4">
-	<Card.Root class="w-full max-w-sm">
-		<Card.Header>
-			<Card.Title>EazyID</Card.Title>
-			<Card.Description>API status: {status}</Card.Description>
-		</Card.Header>
-	</Card.Root>
-</main>
+{#if data.user}
+	<AuthShell heading="Hi, {data.user.name}" subtitle="You are signed in.">
+		<div class="flex flex-col gap-2">
+			{#if data.user.isAdmin}
+				<Button href="/admin">Open admin</Button>
+			{/if}
+			<Button variant="outline" onclick={signOut}>Sign out</Button>
+		</div>
+	</AuthShell>
+{:else}
+	<AuthShell heading="EazyID" subtitle="A modern identity provider.">
+		<Button href="/login" class="w-full">Sign in</Button>
+	</AuthShell>
+{/if}
