@@ -4,10 +4,10 @@ import type { RequestHandler } from './$types';
 
 const handler = new RPCHandler(router);
 
-const handle: RequestHandler = async ({ request }) => {
+const handle: RequestHandler = async ({ request, locals }) => {
 	const { response } = await handler.handle(request, {
 		prefix: '/rpc',
-		context: { headers: request.headers }
+		context: { headers: request.headers, user: locals.user, session: locals.session }
 	});
 
 	return response ?? new Response('Not found', { status: 404 });
