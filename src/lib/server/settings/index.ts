@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { definitions, settingKeys, type SettingKey, type SettingValues } from './definitions';
 import { envName, readEnvOverride } from './env';
 import { loadStoredSettings, storeSetting } from './store';
@@ -10,6 +11,7 @@ export interface ResolvedSetting {
 	source: SettingSource;
 	envName: string;
 	description: string;
+	options?: readonly string[];
 }
 
 export class SettingLockedError extends Error {
@@ -24,7 +26,13 @@ export async function resolveSettings(): Promise<ResolvedSetting[]> {
 
 	return settingKeys.map((key) => {
 		const definition = definitions[key];
-		const base = { key, envName: envName(key), description: definition.description };
+		const base = {
+			key,
+			envName: envName(key),
+			description: definition.description,
+			options:
+				definition.schema instanceof z.ZodEnum ? definition.schema.options.map(String) : undefined
+		};
 
 		const fromEnv = readEnvOverride(key);
 		if (fromEnv !== undefined) {

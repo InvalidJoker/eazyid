@@ -31,7 +31,7 @@
 		<div class="flex items-center gap-2.5 overflow-hidden">
 			<BrandMark />
 			<span class="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
-				EazyID
+				{page.data.branding?.instanceName}
 			</span>
 		</div>
 	</Sidebar.Header>

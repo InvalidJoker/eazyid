@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { loginLayouts } from '#lib/login-layouts.js';
 
 interface SettingDefinition<T> {
 	schema: z.ZodType<T>;
@@ -15,6 +16,11 @@ export const definitions = {
 		schema: z.string().min(1),
 		default: 'EazyID',
 		description: 'Name shown on sign-in pages and in emails.'
+	}),
+	'auth.loginLayout': defineSetting({
+		schema: z.enum(loginLayouts),
+		default: 'centered',
+		description: 'Layout of the sign-in and other signed-out pages.'
 	}),
 	'auth.signUp.enabled': defineSetting({
 		schema: z.boolean(),

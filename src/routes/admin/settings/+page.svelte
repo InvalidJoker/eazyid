@@ -4,6 +4,7 @@
 	import PageHeader from '#lib/components/admin/page-header.svelte';
 	import { Badge } from '#lib/components/ui/badge/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
+	import * as Select from '#lib/components/ui/select/index.js';
 	import { Switch } from '#lib/components/ui/switch/index.js';
 	import { rpc } from '#lib/rpc.js';
 	import type { PageProps } from './$types';
@@ -46,6 +47,20 @@
 					disabled={locked}
 					onCheckedChange={(checked) => save(setting.key, checked)}
 				/>
+			{:else if setting.options}
+				<Select.Root
+					type="single"
+					value={String(setting.value)}
+					disabled={locked}
+					onValueChange={(value) => save(setting.key, value)}
+				>
+					<Select.Trigger class="w-64 capitalize">{setting.value}</Select.Trigger>
+					<Select.Content>
+						{#each setting.options as option (option)}
+							<Select.Item value={option} label={option} class="capitalize" />
+						{/each}
+					</Select.Content>
+				</Select.Root>
 			{:else}
 				<Input
 					class="w-64"

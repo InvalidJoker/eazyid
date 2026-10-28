@@ -23,7 +23,7 @@
 		</div>
 	</AuthShell>
 {:else}
-	<AuthShell heading="EazyID" subtitle="A modern identity provider.">
+	<AuthShell heading={data.branding.instanceName} subtitle="Sign in to continue.">
 		<Button href="/login" class="w-full">Sign in</Button>
 	</AuthShell>
 {/if}
