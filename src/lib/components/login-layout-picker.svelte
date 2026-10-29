@@ -34,8 +34,12 @@
 						<div class="h-2/5 w-3/5 rounded-sm border bg-card"></div>
 					</div>
 				{:else}
-					<div class="flex flex-1 items-center justify-center">
-						<div class="h-2/5 w-2/5 rounded-sm border bg-card"></div>
+					<div class="relative flex flex-1 items-center justify-center">
+						{#if image}
+							<img src={image} alt="" class="absolute inset-0 size-full object-cover" />
+							<div class="absolute inset-0 bg-background/70"></div>
+						{/if}
+						<div class="relative h-2/5 w-2/5 rounded-sm border bg-card"></div>
 					</div>
 				{/if}
 			</div>

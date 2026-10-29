@@ -48,7 +48,8 @@ export const definitions = {
 	'auth.loginImage': defineSetting({
 		group: 'authentication',
 		label: 'Login image',
-		description: 'Shown in the brand panel of the split login layout.',
+		description:
+			'Brand panel image in the split layout, page background in the centered layout. Upload one or use an https URL.',
 		schema: z.string().refine(isAssetOrHttpsUrl, 'Must be an uploaded image or an https URL'),
 		default: '',
 		control: 'image'

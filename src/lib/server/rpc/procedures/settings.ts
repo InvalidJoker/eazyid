@@ -73,6 +73,14 @@ export const uploadImage = adminProcedure
 		return { url };
 	});
 
+export const setImageUrl = adminProcedure
+	.input(z.object({ key: imageKeySchema, url: z.url({ protocol: /^https$/ }) }))
+	.handler(async ({ input }) => {
+		const previous = (await getSettings())[input.key];
+		await saveSettings({ [input.key]: input.url });
+		if (previous !== input.url) await deleteAssetByUrl(previous);
+	});
+
 export const removeImage = adminProcedure
 	.input(z.object({ key: imageKeySchema }))
 	.handler(async ({ input }) => {
@@ -85,5 +93,6 @@ export const settings = {
 	group,
 	update,
 	uploadImage,
+	setImageUrl,
 	removeImage
 };

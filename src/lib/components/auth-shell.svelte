@@ -79,10 +79,15 @@
 	<main
 		class="relative flex min-h-svh items-center justify-center overflow-hidden bg-background p-4"
 	>
-		<div
-			aria-hidden="true"
-			class="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(60%_100%_at_50%_0%,var(--muted),transparent)] opacity-70"
-		></div>
+		{#if branding?.loginImage}
+			<img src={branding.loginImage} alt="" class="absolute inset-0 size-full object-cover" />
+			<div aria-hidden="true" class="absolute inset-0 bg-background/70 backdrop-blur-sm"></div>
+		{:else}
+			<div
+				aria-hidden="true"
+				class="pointer-events-none absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(60%_100%_at_50%_0%,var(--muted),transparent)] opacity-70"
+			></div>
+		{/if}
 		{@render column()}
 	</main>
 {/if}
