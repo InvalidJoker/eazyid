@@ -2,8 +2,10 @@
 	import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
 	import HouseIcon from '@lucide/svelte/icons/house';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { settingsHash } from '#lib/account-settings.js';
 	import { authClient } from '#lib/auth-client.js';
 	import BrandMark from '#lib/components/brand-mark.svelte';
 	import * as Avatar from '#lib/components/ui/avatar/index.js';
@@ -87,6 +89,10 @@
 						{/snippet}
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content side="top" align="start" class="min-w-56">
+						<DropdownMenu.Item onclick={() => (location.hash = settingsHash('profile'))}>
+							<SettingsIcon />
+							Account settings
+						</DropdownMenu.Item>
 						<DropdownMenu.Item onclick={() => goto('/')}>
 							<HouseIcon />
 							Home

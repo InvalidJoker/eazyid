@@ -27,7 +27,7 @@
 				<p class="font-medium">Your email is verified</p>
 				<p class="mt-1 text-sm text-muted-foreground">You can continue to your account.</p>
 			</div>
-			<Button href="/account" class="w-full">Continue</Button>
+			<Button href="/" class="w-full">Continue</Button>
 		{/if}
 	</div>
 </AuthShell>

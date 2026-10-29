@@ -1,11 +1,10 @@
 <script lang="ts">
 	import MonitorSmartphoneIcon from '@lucide/svelte/icons/monitor-smartphone';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import { invalidateAll } from '$app/navigation';
 	import { authClient } from '#lib/auth-client.js';
 	import { Badge } from '#lib/components/ui/badge/index.js';
 	import { Button } from '#lib/components/ui/button/index.js';
-	import * as Card from '#lib/components/ui/card/index.js';
 
 	interface SessionItem {
 		id: string;
@@ -15,38 +14,52 @@
 		createdAt: Date;
 	}
 
-	let { sessions, currentSessionId }: { sessions: SessionItem[]; currentSessionId: string } =
-		$props();
+	let { currentSessionId }: { currentSessionId: string } = $props();
+
+	let sessions = $state<SessionItem[]>([]);
+	let loading = $state(true);
 
 	const hasOthers = $derived(sessions.some((session) => session.id !== currentSessionId));
+
+	async function load() {
+		const { data, error } = await authClient.listSessions();
+		if (error) toast.error(error.message ?? 'Could not load your sessions');
+		sessions = data ?? [];
+		loading = false;
+	}
 
 	async function revoke(token: string) {
 		const { error } = await authClient.revokeSession({ token });
 		if (error) toast.error(error.message ?? 'Could not sign out the session');
-		await invalidateAll();
+		await load();
 	}
 
 	async function revokeOthers() {
 		const { error } = await authClient.revokeOtherSessions();
 		if (error) toast.error(error.message ?? 'Could not sign out other sessions');
-		await invalidateAll();
+		await load();
 	}
+
+	onMount(load);
 </script>
 
-<Card.Root>
-	<Card.Header>
-		<Card.Title>Sessions</Card.Title>
-		<Card.Description>Devices that are signed in to your account.</Card.Description>
+<section class="flex flex-col gap-3">
+	<div class="flex items-start justify-between gap-4">
+		<div>
+			<h3 class="text-sm font-medium">Signed-in devices</h3>
+			<p class="text-xs text-muted-foreground">Sign out devices you do not recognize.</p>
+		</div>
 		{#if hasOthers}
-			<Card.Action>
-				<Button variant="outline" size="sm" onclick={revokeOthers}>Sign out others</Button>
-			</Card.Action>
+			<Button variant="outline" size="sm" onclick={revokeOthers}>Sign out others</Button>
 		{/if}
-	</Card.Header>
-	<Card.Content>
-		<ul class="divide-y">
+	</div>
+
+	{#if loading}
+		<p class="text-sm text-muted-foreground">Loading sessions...</p>
+	{:else}
+		<ul class="divide-y rounded-lg border">
 			{#each sessions as session (session.id)}
-				<li class="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
+				<li class="flex items-center gap-3 p-3">
 					<MonitorSmartphoneIcon class="size-5 shrink-0 text-muted-foreground" />
 					<div class="min-w-0 flex-1">
 						<p class="truncate text-sm">{session.userAgent || 'Unknown device'}</p>
@@ -66,5 +79,5 @@
 				</li>
 			{/each}
 		</ul>
-	</Card.Content>
-</Card.Root>
+	{/if}
+</section>
