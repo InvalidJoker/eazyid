@@ -15,7 +15,7 @@ export interface AdminSetting {
 	key: SettingKey;
 	label: string;
 	description: string;
-	kind: 'boolean' | 'number' | 'string' | 'enum' | 'login-layout' | 'image';
+	kind: 'boolean' | 'number' | 'string' | 'enum' | 'login-layout' | 'image' | 'logo';
 	/** `null` for secrets, which never leave the server. */
 	value: unknown;
 	hasValue: boolean;

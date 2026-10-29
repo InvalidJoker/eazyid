@@ -17,7 +17,7 @@ interface SettingDefinition<S extends z.ZodType> {
 	default: z.output<S>;
 	secret?: boolean;
 	/** A dedicated control instead of the one derived from the value type. */
-	control?: 'login-layout' | 'image';
+	control?: 'login-layout' | 'image' | 'logo';
 	options?: Record<string, OptionMeta>;
 	visibleWhen?: { key: string; equals: unknown };
 }
@@ -37,6 +37,15 @@ export const definitions = {
 		description: 'Shown on sign-in pages and in emails.',
 		schema: z.string().min(1),
 		default: 'EazyID'
+	}),
+	'instance.logo': defineSetting({
+		group: 'instance',
+		label: 'Logo',
+		description:
+			'Shown on sign-in pages, the account page and the admin. Square images work best. Upload one or use an https URL.',
+		schema: z.string().refine(isStoredFileOrHttpsUrl, 'Must be an uploaded image or an https URL'),
+		default: '',
+		control: 'logo'
 	}),
 	'auth.loginLayout': defineSetting({
 		group: 'authentication',

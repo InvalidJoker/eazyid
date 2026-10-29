@@ -29,8 +29,13 @@
 		image={String(groupValues['auth.loginImage'] ?? '')}
 		disabled={locked}
 	/>
-{:else if setting.kind === 'image'}
-	<ImageControl settingKey={setting.key} value={String(setting.value)} disabled={locked} />
+{:else if setting.kind === 'image' || setting.kind === 'logo'}
+	<ImageControl
+		settingKey={setting.key}
+		value={String(setting.value)}
+		shape={setting.kind === 'logo' ? 'square' : 'wide'}
+		disabled={locked}
+	/>
 {:else if setting.kind === 'boolean'}
 	<Switch
 		checked={setting.value === true}

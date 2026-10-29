@@ -15,7 +15,7 @@
 		onSave: (value: unknown) => void;
 	} = $props();
 
-	const stacked = $derived(setting.kind === 'login-layout' || setting.kind === 'image');
+	const stacked = $derived(['login-layout', 'image', 'logo'].includes(setting.kind));
 </script>
 
 <div class={cn('flex gap-4 p-4', stacked ? 'flex-col' : 'flex-wrap items-center justify-between')}>

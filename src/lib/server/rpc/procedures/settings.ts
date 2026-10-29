@@ -17,8 +17,9 @@ const changesSchema = z
 	.object(Object.fromEntries(settingKeys.map((key) => [key, definitions[key].schema.optional()])))
 	.strict();
 
-const imageKeys = settingKeys.filter(
-	(key) => (definitions[key] as { control?: string }).control === 'image'
+const imageControls = ['image', 'logo'];
+const imageKeys = settingKeys.filter((key) =>
+	imageControls.includes((definitions[key] as { control?: string }).control ?? '')
 );
 
 const imageKeySchema = z.custom<SettingKey>(

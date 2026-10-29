@@ -6,12 +6,19 @@
 	import { Input } from '#lib/components/ui/input/index.js';
 	import { rpc } from '#lib/rpc.js';
 	import type { SettingKey } from '#lib/server/settings/definitions.js';
+	import { cn } from '#lib/utils.js';
 
 	let {
 		settingKey,
 		value,
+		shape = 'wide',
 		disabled = false
-	}: { settingKey: SettingKey; value: string; disabled?: boolean } = $props();
+	}: {
+		settingKey: SettingKey;
+		value: string;
+		shape?: 'wide' | 'square';
+		disabled?: boolean;
+	} = $props();
 
 	let fileInput: HTMLInputElement | undefined = $state();
 	let url = $state('');
@@ -53,10 +60,17 @@
 <div class="flex flex-col gap-4">
 	<div class="flex items-center gap-4">
 		<div
-			class="flex aspect-[4/3] w-40 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted"
+			class={cn(
+				'flex shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted',
+				shape === 'wide' ? 'aspect-[4/3] w-40' : 'size-24 p-3'
+			)}
 		>
 			{#if value}
-				<img src={value} alt="" class="size-full object-cover" />
+				<img
+					src={value}
+					alt=""
+					class={cn('size-full', shape === 'wide' ? 'object-cover' : 'object-contain')}
+				/>
 			{:else}
 				<ImageIcon class="size-6 text-muted-foreground" />
 			{/if}
