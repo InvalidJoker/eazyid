@@ -5,6 +5,7 @@
 	import CopyField from '#lib/components/admin/applications/copy-field.svelte';
 	import SecretNotice from '#lib/components/admin/applications/secret-notice.svelte';
 	import PageHeader from '#lib/components/admin/page-header.svelte';
+	import ImageField from '#lib/components/image-field.svelte';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import * as Card from '#lib/components/ui/card/index.js';
 	import type { ApplicationFormValues } from '#lib/applications.js';
@@ -22,13 +23,8 @@
 
 	async function save(values: ApplicationFormValues) {
 		try {
-			await rpc.applications.update({
-				clientId: application.clientId,
-				name: values.name,
-				redirectUris: values.redirectUris,
-				skipConsent: values.skipConsent,
-				disabled: values.disabled
-			});
+			const { type: _type, ...details } = values;
+			await rpc.applications.update({ clientId: application.clientId, ...details });
 			toast.success('Application saved');
 			await invalidateAll();
 			return null;
@@ -89,18 +85,28 @@
 
 	<Card.Root>
 		<Card.Header>
+			<Card.Title>Logo</Card.Title>
+			<Card.Description>Shown on the consent screen and the dashboard.</Card.Description>
+		</Card.Header>
+		<Card.Content>
+			<ImageField
+				value={application.logo}
+				shape="square"
+				onUpload={(file) => rpc.applications.uploadLogo({ clientId: application.clientId, file })}
+				onUseUrl={(url) => rpc.applications.setLogoUrl({ clientId: application.clientId, url })}
+				onRemove={() => rpc.applications.removeLogo({ clientId: application.clientId })}
+			/>
+		</Card.Content>
+	</Card.Root>
+
+	<Card.Root>
+		<Card.Header>
 			<Card.Title>Settings</Card.Title>
 		</Card.Header>
 		<Card.Content>
 			<ApplicationForm
 				mode="edit"
-				initial={{
-					name: application.name,
-					type: application.type,
-					redirectUris: application.redirectUris,
-					skipConsent: application.skipConsent,
-					disabled: application.disabled
-				}}
+				initial={application}
 				submitLabel="Save changes"
 				onSubmit={save}
 			/>

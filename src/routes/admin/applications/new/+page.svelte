@@ -12,14 +12,17 @@
 	const initial: ApplicationFormValues = {
 		name: '',
 		type: 'confidential',
+		description: '',
+		launchUrl: '',
 		redirectUris: [],
 		skipConsent: false,
+		showOnDashboard: false,
 		disabled: false
 	};
 
-	async function create({ name, type, redirectUris, skipConsent }: ApplicationFormValues) {
+	async function create({ disabled: _disabled, ...details }: ApplicationFormValues) {
 		try {
-			created = await rpc.applications.create({ name, type, redirectUris, skipConsent });
+			created = await rpc.applications.create(details);
 			return null;
 		} catch (error) {
 			return error instanceof Error ? error.message : 'Could not create the application';

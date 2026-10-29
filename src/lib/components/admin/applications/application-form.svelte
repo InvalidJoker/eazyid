@@ -34,8 +34,11 @@
 
 	let name = $state('');
 	let type = $state<ApplicationType>('confidential');
+	let description = $state('');
+	let launchUrl = $state('');
 	let redirectUris = $state('');
 	let skipConsent = $state(false);
+	let showOnDashboard = $state(false);
 	let enabled = $state(true);
 	let errorMessage = $state('');
 	let pending = $state(false);
@@ -43,8 +46,11 @@
 	$effect.pre(() => {
 		name = initial.name;
 		type = initial.type;
+		description = initial.description;
+		launchUrl = initial.launchUrl;
 		redirectUris = initial.redirectUris.join('\n');
 		skipConsent = initial.skipConsent;
+		showOnDashboard = initial.showOnDashboard;
 		enabled = !initial.disabled;
 	});
 
@@ -55,11 +61,14 @@
 			(await onSubmit({
 				name,
 				type,
+				description,
+				launchUrl: launchUrl.trim(),
 				redirectUris: redirectUris
 					.split('\n')
 					.map((uri) => uri.trim())
 					.filter(Boolean),
 				skipConsent,
+				showOnDashboard,
 				disabled: !enabled
 			})) ?? '';
 		pending = false;
@@ -72,6 +81,25 @@
 			<Field.Label for="application-name">Name</Field.Label>
 			<Input id="application-name" required bind:value={name} />
 			<Field.Description>Shown to users on the consent screen.</Field.Description>
+		</Field.Field>
+
+		<Field.Field>
+			<Field.Label for="application-description">Description</Field.Label>
+			<Textarea id="application-description" rows={2} bind:value={description} />
+			<Field.Description>A short line shown on the dashboard.</Field.Description>
+		</Field.Field>
+
+		<Field.Field>
+			<Field.Label for="application-launch-url">Launch URL</Field.Label>
+			<Input
+				id="application-launch-url"
+				type="url"
+				placeholder="https://app.example.com"
+				bind:value={launchUrl}
+			/>
+			<Field.Description
+				>Where users go when they open the app from the dashboard.</Field.Description
+			>
 		</Field.Field>
 
 		{#if mode === 'create'}
@@ -119,6 +147,14 @@
 				<Field.Description>For your own apps users already trust.</Field.Description>
 			</Field.Content>
 			<Switch id="application-skip-consent" bind:checked={skipConsent} />
+		</Field.Field>
+
+		<Field.Field orientation="horizontal">
+			<Field.Content>
+				<Field.Label for="application-dashboard">Show on dashboard</Field.Label>
+				<Field.Description>List the app for signed-in users. Needs a launch URL.</Field.Description>
+			</Field.Content>
+			<Switch id="application-dashboard" bind:checked={showOnDashboard} />
 		</Field.Field>
 
 		{#if mode === 'edit'}
