@@ -1,4 +1,4 @@
-import { auth } from '#lib/server/auth/index.js';
+import { getAuth } from '#lib/server/auth/index.js';
 import { db, schema } from '#lib/server/db/index.js';
 
 export interface FirstAdmin {
@@ -31,7 +31,8 @@ export function createFirstAdmin(admin: FirstAdmin) {
 	const run = queue.then(async () => {
 		if (!(await isSetupRequired())) throw new SetupCompletedError();
 
-		await auth.api.createUser({ body: { ...admin, role: 'admin' } });
+		const auth = await getAuth();
+		await auth.api.createUser({ body: { ...admin, role: 'admin', data: { emailVerified: true } } });
 		completed = true;
 
 		await auth.api.signInEmail({ body: { email: admin.email, password: admin.password } });

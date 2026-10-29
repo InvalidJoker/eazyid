@@ -1,6 +1,6 @@
 import { json, redirect } from '@sveltejs/kit';
 import { sequence, type Handle, type ServerInit } from '@sveltejs/kit/hooks';
-import { auth } from '#lib/server/auth/index.js';
+import { getAuth } from '#lib/server/auth/index.js';
 import { migrate } from '#lib/server/db/index.js';
 import { isSetupRequired } from '#lib/server/setup.js';
 
@@ -23,6 +23,7 @@ const handleSetup: Handle = async ({ event, resolve }) => {
 };
 
 const handleSession: Handle = async ({ event, resolve }) => {
+	const auth = await getAuth();
 	const result = await auth.api.getSession({ headers: event.request.headers });
 
 	event.locals.user = result?.user ?? null;
