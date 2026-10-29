@@ -7,10 +7,13 @@
 	import type { LayoutProps } from './$types';
 
 	let { children, data }: LayoutProps = $props();
+
+	const icon = $derived(data.branding.logo || favicon);
 </script>
 
 <svelte:head>
-	<link rel="icon" href={favicon} />
+	<link rel="icon" href={icon} />
+	<link rel="apple-touch-icon" href={icon} />
 </svelte:head>
 
 <ModeWatcher />
