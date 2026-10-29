@@ -16,8 +16,9 @@
 {#if data.user}
 	<AuthShell heading="Hi, {data.user.name}" subtitle="You are signed in.">
 		<div class="flex flex-col gap-2">
+			<Button href="/account">Account</Button>
 			{#if data.user.isAdmin}
-				<Button href="/admin">Open admin</Button>
+				<Button variant="outline" href="/admin">Admin</Button>
 			{/if}
 			<Button variant="outline" onclick={signOut}>Sign out</Button>
 		</div>
