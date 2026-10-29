@@ -33,7 +33,7 @@
 		}
 
 		pending = true;
-		const { error } = await authClient.signUp.email({
+		const { data: result, error } = await authClient.signUp.email({
 			name,
 			email,
 			password,
@@ -48,6 +48,11 @@
 
 		if (data.authOptions.emailVerification === 'required') {
 			awaitingVerification = true;
+			return;
+		}
+		// Set when signing up resumes an OAuth authorization request
+		if (result && 'url' in result && typeof result.url === 'string') {
+			window.location.href = result.url;
 			return;
 		}
 		await goto(safeRedirect(redirectTo), { invalidateAll: true });
@@ -109,7 +114,7 @@
 	{#snippet footer()}
 		Already have an account?
 		<a
-			href={redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : '/login'}
+			href="/login{page.url.search}"
 			class="font-medium text-foreground underline-offset-4 hover:underline">Sign in</a
 		>
 	{/snippet}

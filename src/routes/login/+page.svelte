@@ -25,7 +25,7 @@
 		pending = true;
 		errorMessage = '';
 
-		const { error } = await authClient.signIn.email({ email, password });
+		const { data: result, error } = await authClient.signIn.email({ email, password });
 
 		pending = false;
 		if (error?.code === 'EMAIL_NOT_VERIFIED') {
@@ -37,6 +37,11 @@
 			return;
 		}
 
+		// Set when signing in resumes an OAuth authorization request
+		if (result?.redirect && result.url) {
+			window.location.href = result.url;
+			return;
+		}
 		await goto(safeRedirect(redirectTo), { invalidateAll: true });
 	}
 </script>
@@ -81,7 +86,7 @@
 		{#if data.authOptions.signUp && data.authOptions.emailPassword}
 			No account yet?
 			<a
-				href={redirectTo ? `/register?redirectTo=${encodeURIComponent(redirectTo)}` : '/register'}
+				href="/register{page.url.search}"
 				class="font-medium text-foreground underline-offset-4 hover:underline">Create one</a
 			>
 		{/if}
