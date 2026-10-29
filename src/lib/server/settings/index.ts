@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { findConstraintViolation } from './constraints';
 import { definitions, settingKeys, type SettingKey, type SettingValues } from './definitions';
 import { envName, readEnvOverride } from './env';
 import { loadStoredSettings, storeSetting } from './store';
@@ -9,9 +9,6 @@ export interface ResolvedSetting {
 	key: SettingKey;
 	value: unknown;
 	source: SettingSource;
-	envName: string;
-	description: string;
-	options?: readonly string[];
 }
 
 export class SettingLockedError extends Error {
@@ -20,47 +17,50 @@ export class SettingLockedError extends Error {
 	}
 }
 
+export class SettingInvalidError extends Error {}
+
 /** Resolves every setting: env overrides the database, which overrides the default. */
 export async function resolveSettings(): Promise<ResolvedSetting[]> {
 	const stored = await loadStoredSettings();
 
 	return settingKeys.map((key) => {
 		const definition = definitions[key];
-		const base = {
-			key,
-			envName: envName(key),
-			description: definition.description,
-			options:
-				definition.schema instanceof z.ZodEnum ? definition.schema.options.map(String) : undefined
-		};
 
 		const fromEnv = readEnvOverride(key);
 		if (fromEnv !== undefined) {
-			return { ...base, value: definition.schema.parse(fromEnv), source: 'env' };
+			return { key, value: definition.schema.parse(fromEnv), source: 'env' };
 		}
 
 		const fromDatabase = definition.schema.safeParse(stored.get(key));
 		if (fromDatabase.success) {
-			return { ...base, value: fromDatabase.data, source: 'database' };
+			return { key, value: fromDatabase.data, source: 'database' };
 		}
 
-		return { ...base, value: definition.default, source: 'default' };
+		return { key, value: definition.default, source: 'default' };
 	});
 }
 
-export async function getSettings(): Promise<SettingValues> {
-	const resolved = await resolveSettings();
+export function toValues(resolved: ResolvedSetting[]) {
 	return Object.fromEntries(resolved.map((s) => [s.key, s.value])) as SettingValues;
 }
 
-export async function updateSettings(changes: Partial<SettingValues>) {
-	const entries = Object.entries(changes) as [SettingKey, unknown][];
+export async function getSettings(): Promise<SettingValues> {
+	return toValues(await resolveSettings());
+}
 
-	for (const [key] of entries) {
+export async function updateSettings(changes: Partial<SettingValues>) {
+	const keys = Object.keys(changes) as SettingKey[];
+	const next: Record<string, unknown> = await getSettings();
+
+	for (const key of keys) {
 		if (readEnvOverride(key) !== undefined) throw new SettingLockedError(key);
+		next[key] = definitions[key].schema.parse(changes[key]);
 	}
 
-	for (const [key, value] of entries) {
-		await storeSetting(key, definitions[key].schema.parse(value));
+	const violation = findConstraintViolation(next as SettingValues);
+	if (violation) throw new SettingInvalidError(violation);
+
+	for (const key of keys) {
+		await storeSetting(key, next[key]);
 	}
 }

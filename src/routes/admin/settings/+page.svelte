@@ -2,24 +2,26 @@
 	import { toast } from 'svelte-sonner';
 	import { invalidateAll } from '$app/navigation';
 	import PageHeader from '#lib/components/admin/page-header.svelte';
-	import { Badge } from '#lib/components/ui/badge/index.js';
-	import { Input } from '#lib/components/ui/input/index.js';
-	import * as Select from '#lib/components/ui/select/index.js';
-	import { Switch } from '#lib/components/ui/switch/index.js';
+	import SettingRow from '#lib/components/admin/settings/setting-row.svelte';
 	import { rpc } from '#lib/rpc.js';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
+	function errorMessage(error: unknown, fallback: string) {
+		return error instanceof Error ? error.message : fallback;
+	}
 
 	async function save(key: string, value: unknown) {
 		try {
 			await rpc.settings.update({ [key]: value });
 			toast.success('Setting saved');
 		} catch (error) {
-			toast.error(error instanceof Error ? error.message : 'Could not save setting');
+			toast.error(errorMessage(error, 'Could not save setting'));
 		}
 		await invalidateAll();
 	}
+
 </script>
 
 <PageHeader
@@ -27,48 +29,15 @@
 	description="Values set through environment variables are locked and shown read-only."
 />
 
-<div class="mt-6 divide-y rounded-xl border bg-card">
-	{#each data.settings as setting (setting.key)}
-		{@const locked = setting.source === 'env'}
-		<div class="flex flex-wrap items-center justify-between gap-4 p-4">
-			<div class="min-w-0">
-				<div class="flex items-center gap-2">
-					<code class="text-sm font-medium">{setting.key}</code>
-					{#if locked}
-						<Badge variant="secondary">Set by {setting.envName}</Badge>
-					{/if}
-				</div>
-				<p class="mt-1 text-sm text-muted-foreground">{setting.description}</p>
-			</div>
-
-			{#if typeof setting.value === 'boolean'}
-				<Switch
-					checked={setting.value}
-					disabled={locked}
-					onCheckedChange={(checked) => save(setting.key, checked)}
-				/>
-			{:else if setting.options}
-				<Select.Root
-					type="single"
-					value={String(setting.value)}
-					disabled={locked}
-					onValueChange={(value) => save(setting.key, value)}
-				>
-					<Select.Trigger class="w-64 capitalize">{setting.value}</Select.Trigger>
-					<Select.Content>
-						{#each setting.options as option (option)}
-							<Select.Item value={option} label={option} class="capitalize" />
-						{/each}
-					</Select.Content>
-				</Select.Root>
-			{:else}
-				<Input
-					class="w-64"
-					value={String(setting.value)}
-					disabled={locked}
-					onchange={(event) => save(setting.key, event.currentTarget.value)}
-				/>
-			{/if}
+{#each data.groups as group (group.id)}
+	<section class="mt-8">
+		<div class="mb-3 flex items-center justify-between">
+			<h2 class="text-sm font-semibold">{group.label}</h2>
 		</div>
-	{/each}
-</div>
+		<div class="divide-y rounded-xl border bg-card">
+			{#each group.settings as setting (setting.key)}
+				<SettingRow {setting} onSave={(value) => save(setting.key, value)} />
+			{/each}
+		</div>
+	</section>
+{/each}
