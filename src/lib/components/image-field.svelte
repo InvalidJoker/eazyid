@@ -4,20 +4,22 @@
 	import { invalidateAll } from '$app/navigation';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { Input } from '#lib/components/ui/input/index.js';
-	import { rpc } from '#lib/rpc.js';
-	import type { SettingKey } from '#lib/server/settings/definitions.js';
 	import { cn } from '#lib/utils.js';
 
 	let {
-		settingKey,
 		value,
 		shape = 'wide',
-		disabled = false
+		disabled = false,
+		onUpload,
+		onUseUrl,
+		onRemove
 	}: {
-		settingKey: SettingKey;
 		value: string;
 		shape?: 'wide' | 'square';
 		disabled?: boolean;
+		onUpload: (file: File) => Promise<unknown>;
+		onUseUrl: (url: string) => Promise<unknown>;
+		onRemove: () => Promise<unknown>;
 	} = $props();
 
 	let fileInput: HTMLInputElement | undefined = $state();
@@ -46,15 +48,15 @@
 		event.currentTarget.value = '';
 		if (!file) return;
 
-		run(() => rpc.settings.uploadImage({ key: settingKey, file }), 'Image uploaded');
+		run(() => onUpload(file), 'Image uploaded');
 	}
 
 	function useUrl(event: SubmitEvent) {
 		event.preventDefault();
-		run(() => rpc.settings.setImageUrl({ key: settingKey, url }), 'Image URL saved');
+		run(() => onUseUrl(url), 'Image URL saved');
 	}
 
-	const remove = () => run(() => rpc.settings.removeImage({ key: settingKey }), 'Image removed');
+	const remove = () => run(onRemove, 'Image removed');
 </script>
 
 <div class="flex flex-col gap-4">

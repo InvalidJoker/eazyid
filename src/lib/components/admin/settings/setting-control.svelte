@@ -1,11 +1,12 @@
 <script lang="ts">
+	import ImageField from '#lib/components/image-field.svelte';
 	import LoginLayoutPicker from '#lib/components/login-layout-picker.svelte';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import * as Select from '#lib/components/ui/select/index.js';
 	import { Switch } from '#lib/components/ui/switch/index.js';
 	import type { LoginLayout } from '#lib/login-layouts.js';
+	import { rpc } from '#lib/rpc.js';
 	import type { AdminSetting } from '#lib/server/settings/admin-view.js';
-	import ImageControl from './image-control.svelte';
 	import UnsafeBadge from './unsafe-badge.svelte';
 
 	let {
@@ -30,11 +31,13 @@
 		disabled={locked}
 	/>
 {:else if setting.kind === 'image' || setting.kind === 'logo'}
-	<ImageControl
-		settingKey={setting.key}
+	<ImageField
 		value={String(setting.value)}
 		shape={setting.kind === 'logo' ? 'square' : 'wide'}
 		disabled={locked}
+		onUpload={(file) => rpc.settings.uploadImage({ key: setting.key, file })}
+		onUseUrl={(url) => rpc.settings.setImageUrl({ key: setting.key, url })}
+		onRemove={() => rpc.settings.removeImage({ key: setting.key })}
 	/>
 {:else if setting.kind === 'boolean'}
 	<Switch
