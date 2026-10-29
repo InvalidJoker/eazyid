@@ -1,8 +1,16 @@
+import { onError, ORPCError } from '@orpc/server';
 import { RPCHandler } from '@orpc/server/fetch';
 import { router } from '#lib/server/rpc/router.js';
 import type { RequestHandler } from './$types';
 
-const handler = new RPCHandler(router);
+const handler = new RPCHandler(router, {
+	interceptors: [
+		onError((error) => {
+			// Expected errors are thrown on purpose and already reach the client
+			if (!(error instanceof ORPCError)) console.error(error);
+		})
+	]
+});
 
 const handle: RequestHandler = async ({ request, locals }) => {
 	const { response } = await handler.handle(request, {
