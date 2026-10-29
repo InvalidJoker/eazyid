@@ -1,8 +1,10 @@
+import { email } from './procedures/email';
 import { settings } from './procedures/settings';
 import { setup } from './procedures/setup';
 import { system } from './procedures/system';
 
 export const router = {
+	email,
 	settings,
 	setup,
 	system

@@ -3,6 +3,7 @@
 	import { invalidateAll } from '$app/navigation';
 	import PageHeader from '#lib/components/admin/page-header.svelte';
 	import SettingRow from '#lib/components/admin/settings/setting-row.svelte';
+	import { Button } from '#lib/components/ui/button/index.js';
 	import { rpc } from '#lib/rpc.js';
 	import type { PageProps } from './$types';
 
@@ -22,6 +23,14 @@
 		await invalidateAll();
 	}
 
+	async function sendTestEmail() {
+		try {
+			const { sentTo } = await rpc.email.sendTest();
+			toast.success(`Test email sent to ${sentTo}`);
+		} catch (error) {
+			toast.error(errorMessage(error, 'Could not send test email'));
+		}
+	}
 </script>
 
 <PageHeader
@@ -33,6 +42,9 @@
 	<section class="mt-8">
 		<div class="mb-3 flex items-center justify-between">
 			<h2 class="text-sm font-semibold">{group.label}</h2>
+			{#if group.id === 'email'}
+				<Button variant="outline" size="sm" onclick={sendTestEmail}>Send test email</Button>
+			{/if}
 		</div>
 		<div class="divide-y rounded-xl border bg-card">
 			{#each group.settings as setting (setting.key)}
