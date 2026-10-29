@@ -1,5 +1,6 @@
 import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 import SettingsIcon from '@lucide/svelte/icons/settings';
+import UsersIcon from '@lucide/svelte/icons/users';
 
 export interface NavItem {
 	href: string;
@@ -16,6 +17,10 @@ export interface NavSection {
 export const adminNavigation: NavSection[] = [
 	{
 		items: [{ href: '/admin', label: 'Overview', icon: LayoutDashboardIcon, exact: true }]
+	},
+	{
+		label: 'Directory',
+		items: [{ href: '/admin/users', label: 'Users', icon: UsersIcon }]
 	},
 	{
 		label: 'System',
