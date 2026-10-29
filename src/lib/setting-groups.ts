@@ -10,6 +10,10 @@ export const settingGroups = {
 	email: {
 		label: 'Email',
 		description: 'How emails are delivered. Needed for email verification.'
+	},
+	storage: {
+		label: 'Storage',
+		description: 'Where uploaded files like login images are kept.'
 	}
 } as const;
 

@@ -9,11 +9,17 @@ export const setting = sqliteTable('setting', {
 		.notNull()
 });
 
-export const asset = sqliteTable('asset', {
-	id: text('id').primaryKey(),
+export const file = sqliteTable('file', {
+	key: text('key').primaryKey(),
+	driver: text('driver').notNull(),
 	contentType: text('content_type').notNull(),
-	data: text('data').notNull(),
+	size: integer('size').notNull(),
 	createdAt: integer('created_at', { mode: 'timestamp_ms' })
 		.$defaultFn(() => new Date())
 		.notNull()
+});
+
+export const fileBlob = sqliteTable('file_blob', {
+	key: text('key').primaryKey(),
+	data: text('data').notNull()
 });

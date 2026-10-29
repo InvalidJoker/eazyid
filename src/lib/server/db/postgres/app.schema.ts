@@ -1,4 +1,4 @@
-import { jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { integer, jsonb, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 export const setting = pgTable('setting', {
 	key: text('key').primaryKey(),
@@ -9,9 +9,15 @@ export const setting = pgTable('setting', {
 		.notNull()
 });
 
-export const asset = pgTable('asset', {
-	id: text('id').primaryKey(),
+export const file = pgTable('file', {
+	key: text('key').primaryKey(),
+	driver: text('driver').notNull(),
 	contentType: text('content_type').notNull(),
-	data: text('data').notNull(),
+	size: integer('size').notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull()
+});
+
+export const fileBlob = pgTable('file_blob', {
+	key: text('key').primaryKey(),
+	data: text('data').notNull()
 });

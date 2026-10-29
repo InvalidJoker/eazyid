@@ -1,6 +1,7 @@
 import { ORPCError } from '@orpc/server';
 import { z } from 'zod';
-import { deleteAssetByUrl, InvalidImageError, storeImage } from '#lib/server/assets/index.js';
+import { deleteFileByUrl, StorageNotConfiguredError } from '#lib/server/storage/index.js';
+import { InvalidImageError, saveImage } from '#lib/server/storage/images.js';
 import { getSettingGroupForAdmin } from '#lib/server/settings/admin-view.js';
 import { definitions, settingKeys, type SettingKey } from '#lib/server/settings/definitions.js';
 import {
@@ -54,9 +55,9 @@ export const uploadImage = adminProcedure
 
 		let url: string;
 		try {
-			url = await storeImage(input.file);
+			({ url } = await saveImage('branding', input.file));
 		} catch (error) {
-			if (error instanceof InvalidImageError) {
+			if (error instanceof InvalidImageError || error instanceof StorageNotConfiguredError) {
 				throw new ORPCError('BAD_REQUEST', { message: error.message });
 			}
 			throw error;
@@ -65,10 +66,10 @@ export const uploadImage = adminProcedure
 		try {
 			await saveSettings({ [input.key]: url });
 		} catch (error) {
-			await deleteAssetByUrl(url);
+			await deleteFileByUrl(url);
 			throw error;
 		}
-		await deleteAssetByUrl(previous);
+		await deleteFileByUrl(previous);
 
 		return { url };
 	});
@@ -78,7 +79,7 @@ export const setImageUrl = adminProcedure
 	.handler(async ({ input }) => {
 		const previous = (await getSettings())[input.key];
 		await saveSettings({ [input.key]: input.url });
-		if (previous !== input.url) await deleteAssetByUrl(previous);
+		if (previous !== input.url) await deleteFileByUrl(previous);
 	});
 
 export const removeImage = adminProcedure
@@ -86,7 +87,7 @@ export const removeImage = adminProcedure
 	.handler(async ({ input }) => {
 		const previous = (await getSettings())[input.key];
 		await saveSettings({ [input.key]: '' });
-		await deleteAssetByUrl(previous);
+		await deleteFileByUrl(previous);
 	});
 
 export const settings = {

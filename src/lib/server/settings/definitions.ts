@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isAssetOrHttpsUrl } from '#lib/server/assets/url.js';
+import { isStoredFileOrHttpsUrl } from '#lib/server/storage/url.js';
 import { loginLayouts } from '#lib/login-layouts.js';
 import type { SettingGroup } from '#lib/setting-groups.js';
 
@@ -28,6 +28,7 @@ function defineSetting<S extends z.ZodType>(definition: SettingDefinition<S>) {
 
 export const emailVerificationModes = ['disabled', 'optional', 'required'] as const;
 export const emailTransports = ['none', 'smtp', 'resend'] as const;
+export const storageDrivers = ['database', 'local', 's3'] as const;
 
 export const definitions = {
 	'instance.name': defineSetting({
@@ -50,7 +51,7 @@ export const definitions = {
 		label: 'Login image',
 		description:
 			'Brand panel image in the split layout, page background in the centered layout. Upload one or use an https URL.',
-		schema: z.string().refine(isAssetOrHttpsUrl, 'Must be an uploaded image or an https URL'),
+		schema: z.string().refine(isStoredFileOrHttpsUrl, 'Must be an uploaded image or an https URL'),
 		default: '',
 		control: 'image'
 	}),
@@ -145,6 +146,76 @@ export const definitions = {
 		default: '',
 		secret: true,
 		visibleWhen: { key: 'email.transport', equals: 'resend' }
+	}),
+	'storage.driver': defineSetting({
+		group: 'storage',
+		label: 'Driver',
+		description:
+			'Where new uploads go. Files already stored stay with the driver they were saved with.',
+		schema: z.enum(storageDrivers),
+		default: 'database',
+		options: {
+			database: { label: 'Database' },
+			local: { label: 'Local disk' },
+			s3: { label: 'S3 compatible' }
+		}
+	}),
+	'storage.local.path': defineSetting({
+		group: 'storage',
+		label: 'Directory',
+		description: 'Folder for uploads, relative to the working directory or absolute.',
+		schema: z.string(),
+		default: './data/uploads',
+		visibleWhen: { key: 'storage.driver', equals: 'local' }
+	}),
+	'storage.s3.bucket': defineSetting({
+		group: 'storage',
+		label: 'Bucket',
+		description: 'Name of the bucket uploads are written to.',
+		schema: z.string(),
+		default: '',
+		visibleWhen: { key: 'storage.driver', equals: 's3' }
+	}),
+	'storage.s3.region': defineSetting({
+		group: 'storage',
+		label: 'Region',
+		description: 'Bucket region. Use auto for Cloudflare R2.',
+		schema: z.string().min(1),
+		default: 'us-east-1',
+		visibleWhen: { key: 'storage.driver', equals: 's3' }
+	}),
+	'storage.s3.endpoint': defineSetting({
+		group: 'storage',
+		label: 'Endpoint',
+		description: 'Leave empty for AWS. Set it for MinIO, R2 or other S3 compatible services.',
+		schema: z.string(),
+		default: '',
+		visibleWhen: { key: 'storage.driver', equals: 's3' }
+	}),
+	'storage.s3.forcePathStyle': defineSetting({
+		group: 'storage',
+		label: 'Path-style URLs',
+		description: 'Needed by most self-hosted services like MinIO.',
+		schema: z.boolean(),
+		default: false,
+		visibleWhen: { key: 'storage.driver', equals: 's3' }
+	}),
+	'storage.s3.accessKeyId': defineSetting({
+		group: 'storage',
+		label: 'Access key ID',
+		description: 'Key with read and write access to the bucket.',
+		schema: z.string(),
+		default: '',
+		visibleWhen: { key: 'storage.driver', equals: 's3' }
+	}),
+	'storage.s3.secretAccessKey': defineSetting({
+		group: 'storage',
+		label: 'Secret access key',
+		description: 'Stored in the database. Prefer the env variable in production.',
+		schema: z.string(),
+		default: '',
+		secret: true,
+		visibleWhen: { key: 'storage.driver', equals: 's3' }
 	})
 };
 

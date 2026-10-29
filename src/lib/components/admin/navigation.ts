@@ -1,4 +1,5 @@
 import BuildingIcon from '@lucide/svelte/icons/building-2';
+import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 import MailIcon from '@lucide/svelte/icons/mail';
@@ -20,7 +21,8 @@ export interface NavSection {
 const settingGroupIcons: Record<SettingGroup, typeof LayoutDashboardIcon> = {
 	instance: BuildingIcon,
 	authentication: KeyRoundIcon,
-	email: MailIcon
+	email: MailIcon,
+	storage: HardDriveIcon
 };
 
 export const adminNavigation: NavSection[] = [
