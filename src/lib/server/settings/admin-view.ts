@@ -1,5 +1,5 @@
 import { isEmailConfigured } from '#lib/server/email/config.js';
-import { definitions, settingGroups, type SettingGroup } from './definitions';
+import { definitions, settingGroups, type SettingGroup, type SettingKey } from './definitions';
 import { envName } from './env';
 import { resolveSettings, toValues, type SettingSource } from './index';
 
@@ -11,10 +11,10 @@ export interface AdminSettingOption {
 }
 
 export interface AdminSetting {
-	key: string;
+	key: SettingKey;
 	label: string;
 	description: string;
-	kind: 'boolean' | 'number' | 'string' | 'enum';
+	kind: 'boolean' | 'number' | 'string' | 'enum' | 'image';
 	/** `null` for secrets, which never leave the server. */
 	value: unknown;
 	hasValue: boolean;
@@ -55,7 +55,9 @@ export async function listSettingsForAdmin(): Promise<AdminSettingGroup[]> {
 			key,
 			label: definition.label,
 			description: definition.description,
-			kind: optionList ? 'enum' : (typeof definition.default as AdminSetting['kind']),
+			kind:
+				definition.control ??
+				(optionList ? 'enum' : (typeof definition.default as 'boolean' | 'number' | 'string')),
 			value: definition.secret ? null : value,
 			hasValue: value !== '',
 			secret: definition.secret ?? false,

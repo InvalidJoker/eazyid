@@ -8,3 +8,10 @@ export const setting = pgTable('setting', {
 		.$onUpdate(() => new Date())
 		.notNull()
 });
+
+export const asset = pgTable('asset', {
+	id: text('id').primaryKey(),
+	contentType: text('content_type').notNull(),
+	data: text('data').notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull()
+});

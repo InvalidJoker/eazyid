@@ -8,7 +8,8 @@ export const load: LayoutServerLoad = async () => {
 	return {
 		branding: {
 			instanceName: settings['instance.name'],
-			loginLayout: settings['auth.loginLayout']
+			loginLayout: settings['auth.loginLayout'],
+			loginImage: settings['auth.loginImage']
 		},
 		authOptions: {
 			emailPassword: settings['auth.emailPassword.enabled'],

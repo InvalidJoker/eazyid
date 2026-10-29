@@ -51,10 +51,23 @@
 
 {#if split}
 	<div class="flex min-h-svh flex-col lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-		<aside class="hidden flex-col justify-between border-e bg-muted/60 p-10 lg:flex xl:p-14">
-			<div class="flex items-center gap-3">
+		<aside
+			class="relative hidden flex-col justify-between overflow-hidden border-e bg-muted/60 p-10 lg:flex xl:p-14"
+		>
+			{#if branding?.loginImage}
+				<img src={branding.loginImage} alt="" class="absolute inset-0 size-full object-cover" />
+				<div
+					aria-hidden="true"
+					class="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-black/60 to-transparent"
+				></div>
+			{/if}
+			<div class="relative flex items-center gap-3">
 				<BrandMark class="size-9 rounded-lg" />
-				<span class="text-base font-semibold tracking-tight">{branding?.instanceName}</span>
+				<span
+					class={cn('text-base font-semibold tracking-tight', branding?.loginImage && 'text-white')}
+				>
+					{branding?.instanceName}
+				</span>
 			</div>
 		</aside>
 

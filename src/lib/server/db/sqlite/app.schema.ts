@@ -8,3 +8,12 @@ export const setting = sqliteTable('setting', {
 		.$onUpdate(() => new Date())
 		.notNull()
 });
+
+export const asset = sqliteTable('asset', {
+	id: text('id').primaryKey(),
+	contentType: text('content_type').notNull(),
+	data: text('data').notNull(),
+	createdAt: integer('created_at', { mode: 'timestamp_ms' })
+		.$defaultFn(() => new Date())
+		.notNull()
+});

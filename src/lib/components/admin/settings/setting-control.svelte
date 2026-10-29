@@ -3,6 +3,7 @@
 	import * as Select from '#lib/components/ui/select/index.js';
 	import { Switch } from '#lib/components/ui/switch/index.js';
 	import type { AdminSetting } from '#lib/server/settings/admin-view.js';
+	import ImageControl from './image-control.svelte';
 	import UnsafeBadge from './unsafe-badge.svelte';
 
 	let { setting, onSave }: { setting: AdminSetting; onSave: (value: unknown) => void } = $props();
@@ -11,7 +12,9 @@
 	const selected = $derived(setting.options?.find((option) => option.value === setting.value));
 </script>
 
-{#if setting.kind === 'boolean'}
+{#if setting.kind === 'image'}
+	<ImageControl settingKey={setting.key} value={String(setting.value)} disabled={locked} />
+{:else if setting.kind === 'boolean'}
 	<Switch
 		checked={setting.value === true}
 		disabled={locked}

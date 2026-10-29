@@ -1,8 +1,10 @@
 import { ORPCError } from '@orpc/server';
 import { z } from 'zod';
+import { deleteAssetByUrl, InvalidImageError, storeImage } from '#lib/server/assets/index.js';
 import { listSettingsForAdmin } from '#lib/server/settings/admin-view.js';
-import { definitions, settingKeys } from '#lib/server/settings/definitions.js';
+import { definitions, settingKeys, type SettingKey } from '#lib/server/settings/definitions.js';
 import {
+	getSettings,
 	SettingInvalidError,
 	SettingLockedError,
 	updateSettings
@@ -13,11 +15,18 @@ const changesSchema = z
 	.object(Object.fromEntries(settingKeys.map((key) => [key, definitions[key].schema.optional()])))
 	.strict();
 
-export const list = adminProcedure.handler(() => listSettingsForAdmin());
+const imageKeys = settingKeys.filter(
+	(key) => (definitions[key] as { control?: string }).control === 'image'
+);
 
-export const update = adminProcedure.input(changesSchema).handler(async ({ input }) => {
+const imageKeySchema = z.custom<SettingKey>(
+	(value) => imageKeys.includes(value as SettingKey),
+	'Not an image setting'
+);
+
+async function saveSettings(changes: z.infer<typeof changesSchema>) {
 	try {
-		await updateSettings(input);
+		await updateSettings(changes);
 	} catch (error) {
 		if (error instanceof SettingLockedError) {
 			throw new ORPCError('CONFLICT', { message: error.message });
@@ -27,11 +36,52 @@ export const update = adminProcedure.input(changesSchema).handler(async ({ input
 		}
 		throw error;
 	}
+}
 
+export const list = adminProcedure.handler(() => listSettingsForAdmin());
+
+export const update = adminProcedure.input(changesSchema).handler(async ({ input }) => {
+	await saveSettings(input);
 	return listSettingsForAdmin();
 });
 
+export const uploadImage = adminProcedure
+	.input(z.object({ key: imageKeySchema, file: z.file() }))
+	.handler(async ({ input }) => {
+		const previous = (await getSettings())[input.key];
+
+		let url: string;
+		try {
+			url = await storeImage(input.file);
+		} catch (error) {
+			if (error instanceof InvalidImageError) {
+				throw new ORPCError('BAD_REQUEST', { message: error.message });
+			}
+			throw error;
+		}
+
+		try {
+			await saveSettings({ [input.key]: url });
+		} catch (error) {
+			await deleteAssetByUrl(url);
+			throw error;
+		}
+		await deleteAssetByUrl(previous);
+
+		return { url };
+	});
+
+export const removeImage = adminProcedure
+	.input(z.object({ key: imageKeySchema }))
+	.handler(async ({ input }) => {
+		const previous = (await getSettings())[input.key];
+		await saveSettings({ [input.key]: '' });
+		await deleteAssetByUrl(previous);
+	});
+
 export const settings = {
 	list,
-	update
+	update,
+	uploadImage,
+	removeImage
 };

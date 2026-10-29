@@ -3,11 +3,14 @@
 	import type { AdminSetting } from '#lib/server/settings/admin-view.js';
 	import SettingControl from './setting-control.svelte';
 	import UnsafeBadge from './unsafe-badge.svelte';
+	import { cn } from '#lib/utils.js';
 
 	let { setting, onSave }: { setting: AdminSetting; onSave: (value: unknown) => void } = $props();
+
+	const stacked = $derived(setting.kind === 'image');
 </script>
 
-<div class="flex flex-wrap items-center justify-between gap-4 p-4">
+<div class={cn('flex gap-4 p-4', stacked ? 'flex-col' : 'flex-wrap items-center justify-between')}>
 	<div class="min-w-0 flex-1">
 		<div class="flex flex-wrap items-center gap-2">
 			<span class="text-sm font-medium">{setting.label}</span>
@@ -22,5 +25,7 @@
 		<code class="mt-1 block text-xs text-muted-foreground/70">{setting.envName}</code>
 	</div>
 
-	<SettingControl {setting} {onSave} />
+	<div class={cn(stacked && 'max-w-md')}>
+		<SettingControl {setting} {onSave} />
+	</div>
 </div>

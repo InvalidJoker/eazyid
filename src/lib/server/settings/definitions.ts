@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isAssetOrHttpsUrl } from '#lib/server/assets/url.js';
 import { loginLayouts } from '#lib/login-layouts.js';
 
 export const settingGroups = {
@@ -22,6 +23,8 @@ interface SettingDefinition<S extends z.ZodType> {
 	schema: S;
 	default: z.output<S>;
 	secret?: boolean;
+	/** A dedicated control instead of the one derived from the value type. */
+	control?: 'image';
 	options?: Record<string, OptionMeta>;
 	visibleWhen?: { key: string; equals: unknown };
 }
@@ -48,6 +51,14 @@ export const definitions = {
 		schema: z.enum(loginLayouts),
 		default: 'centered',
 		options: { centered: { label: 'Centered' }, split: { label: 'Split' } }
+	}),
+	'auth.loginImage': defineSetting({
+		group: 'authentication',
+		label: 'Login image',
+		description: 'Shown in the brand panel of the split login layout.',
+		schema: z.string().refine(isAssetOrHttpsUrl, 'Must be an uploaded image or an https URL'),
+		default: '',
+		control: 'image'
 	}),
 	'auth.signUp.enabled': defineSetting({
 		group: 'authentication',
