@@ -3,6 +3,7 @@ import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 import MailIcon from '@lucide/svelte/icons/mail';
+import PlugIcon from '@lucide/svelte/icons/plug';
 import UsersIcon from '@lucide/svelte/icons/users';
 import { settingGroupIds, settingGroups, type SettingGroup } from '#lib/setting-groups.js';
 
@@ -21,6 +22,7 @@ export interface NavSection {
 const settingGroupIcons: Record<SettingGroup, typeof LayoutDashboardIcon> = {
 	instance: BuildingIcon,
 	authentication: KeyRoundIcon,
+	oidc: PlugIcon,
 	email: MailIcon,
 	storage: HardDriveIcon
 };

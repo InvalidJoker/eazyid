@@ -7,6 +7,10 @@ export const settingGroups = {
 		label: 'Authentication',
 		description: 'How people sign up and sign in, and what the login page looks like.'
 	},
+	oidc: {
+		label: 'OIDC',
+		description: 'OpenID Connect provider your applications sign in with.'
+	},
 	email: {
 		label: 'Email',
 		description: 'How emails are delivered. Needed for email verification.'

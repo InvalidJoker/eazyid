@@ -91,6 +91,34 @@ export const definitions = {
 			required: { label: 'Required', requiresEmail: true }
 		}
 	}),
+	'oidc.enabled': defineSetting({
+		group: 'oidc',
+		label: 'OIDC provider',
+		description: 'Let applications sign users in with OpenID Connect and OAuth 2.',
+		schema: z.boolean(),
+		default: true
+	}),
+	'oidc.dynamicRegistration': defineSetting({
+		group: 'oidc',
+		label: 'Dynamic client registration',
+		description: 'Let signed-in users register applications themselves (RFC 7591).',
+		schema: z.boolean(),
+		default: false
+	}),
+	'oidc.accessTokenLifetime': defineSetting({
+		group: 'oidc',
+		label: 'Access token lifetime',
+		description: 'In seconds. Short lifetimes limit the damage of a leaked token.',
+		schema: z.coerce.number().int().min(60),
+		default: 3600
+	}),
+	'oidc.refreshTokenLifetime': defineSetting({
+		group: 'oidc',
+		label: 'Refresh token lifetime',
+		description: 'In seconds. Only issued when an application asks for offline_access.',
+		schema: z.coerce.number().int().min(60),
+		default: 2592000
+	}),
 	'email.transport': defineSetting({
 		group: 'email',
 		label: 'Transport',

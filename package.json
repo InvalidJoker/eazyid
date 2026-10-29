@@ -54,6 +54,7 @@
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "^3.1158.0",
+		"@better-auth/oauth-provider": "1.7.14",
 		"@libsql/client": "^0.18.0",
 		"@orpc/client": "^1.16.1",
 		"@orpc/server": "^1.16.1",

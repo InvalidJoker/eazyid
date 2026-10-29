@@ -1,12 +1,14 @@
 import { BETTER_AUTH_SECRET, ORIGIN } from '$app/env/private';
 import { getRequestEvent } from '$app/server';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { oauthProvider } from '@better-auth/oauth-provider';
 import { betterAuth } from 'better-auth/minimal';
-import { admin } from 'better-auth/plugins';
+import { admin, jwt } from 'better-auth/plugins';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { db, dialect, schema } from '#lib/server/db/index.js';
 import type { SettingValues } from '#lib/server/settings/definitions.js';
 import { getSettings } from '#lib/server/settings/index.js';
+import { isAdmin } from './roles';
 import { effectiveVerificationMode, sendVerificationEmail } from './verification';
 
 export function createAuth(settings: SettingValues) {
@@ -36,8 +38,23 @@ export function createAuth(settings: SettingValues) {
 						sendVerificationEmail: async ({ user, url }) =>
 							sendVerificationEmail(user.email, url, settings['instance.name'])
 					},
+		// The JWT plugin's own /token endpoint is not part of OIDC and would only confuse clients
+		disabledPaths: ['/token'],
 		plugins: [
 			admin(),
+			jwt({ jwt: { issuer: ORIGIN }, disableSettingJwtHeader: true }),
+			oauthProvider({
+				loginPage: '/login',
+				consentPage: '/oauth/consent',
+				scopes: ['openid', 'profile', 'email', 'offline_access'],
+				allowDynamicClientRegistration: settings['oidc.dynamicRegistration'],
+				accessTokenExpiresIn: settings['oidc.accessTokenLifetime'],
+				refreshTokenExpiresIn: settings['oidc.refreshTokenLifetime'],
+				// Admin-made applications belong to the instance, so deleting an admin keeps them
+				clientReference: ({ user }) => (isAdmin(user) ? 'instance' : undefined),
+				clientPrivileges: ({ user, action }) =>
+					isAdmin(user) || (action === 'create' && settings['oidc.dynamicRegistration'])
+			}),
 			// Must stay last so it can set cookies from every other plugin's responses
 			sveltekitCookies(getRequestEvent)
 		]
