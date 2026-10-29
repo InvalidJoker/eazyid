@@ -5,9 +5,17 @@
 	import UnsafeBadge from './unsafe-badge.svelte';
 	import { cn } from '#lib/utils.js';
 
-	let { setting, onSave }: { setting: AdminSetting; onSave: (value: unknown) => void } = $props();
+	let {
+		setting,
+		groupValues,
+		onSave
+	}: {
+		setting: AdminSetting;
+		groupValues: Record<string, unknown>;
+		onSave: (value: unknown) => void;
+	} = $props();
 
-	const stacked = $derived(setting.kind === 'image');
+	const stacked = $derived(setting.kind === 'login-layout' || setting.kind === 'image');
 </script>
 
 <div class={cn('flex gap-4 p-4', stacked ? 'flex-col' : 'flex-wrap items-center justify-between')}>
@@ -26,6 +34,6 @@
 	</div>
 
 	<div class={cn(stacked && 'max-w-md')}>
-		<SettingControl {setting} {onSave} />
+		<SettingControl {setting} {groupValues} {onSave} />
 	</div>
 </div>

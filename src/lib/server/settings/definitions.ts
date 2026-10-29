@@ -1,14 +1,7 @@
 import { z } from 'zod';
 import { isAssetOrHttpsUrl } from '#lib/server/assets/url.js';
 import { loginLayouts } from '#lib/login-layouts.js';
-
-export const settingGroups = {
-	instance: 'Instance',
-	authentication: 'Authentication',
-	email: 'Email'
-} as const;
-
-export type SettingGroup = keyof typeof settingGroups;
+import type { SettingGroup } from '#lib/setting-groups.js';
 
 export interface OptionMeta {
 	label: string;
@@ -24,7 +17,7 @@ interface SettingDefinition<S extends z.ZodType> {
 	default: z.output<S>;
 	secret?: boolean;
 	/** A dedicated control instead of the one derived from the value type. */
-	control?: 'image';
+	control?: 'login-layout' | 'image';
 	options?: Record<string, OptionMeta>;
 	visibleWhen?: { key: string; equals: unknown };
 }
@@ -50,7 +43,7 @@ export const definitions = {
 		description: 'Layout of the sign-in and other signed-out pages.',
 		schema: z.enum(loginLayouts),
 		default: 'centered',
-		options: { centered: { label: 'Centered' }, split: { label: 'Split' } }
+		control: 'login-layout'
 	}),
 	'auth.loginImage': defineSetting({
 		group: 'authentication',

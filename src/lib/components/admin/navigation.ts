@@ -1,6 +1,9 @@
+import BuildingIcon from '@lucide/svelte/icons/building-2';
+import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
-import SettingsIcon from '@lucide/svelte/icons/settings';
+import MailIcon from '@lucide/svelte/icons/mail';
 import UsersIcon from '@lucide/svelte/icons/users';
+import { settingGroupIds, settingGroups, type SettingGroup } from '#lib/setting-groups.js';
 
 export interface NavItem {
 	href: string;
@@ -14,6 +17,12 @@ export interface NavSection {
 	items: NavItem[];
 }
 
+const settingGroupIcons: Record<SettingGroup, typeof LayoutDashboardIcon> = {
+	instance: BuildingIcon,
+	authentication: KeyRoundIcon,
+	email: MailIcon
+};
+
 export const adminNavigation: NavSection[] = [
 	{
 		items: [{ href: '/admin', label: 'Overview', icon: LayoutDashboardIcon, exact: true }]
@@ -23,7 +32,11 @@ export const adminNavigation: NavSection[] = [
 		items: [{ href: '/admin/users', label: 'Users', icon: UsersIcon }]
 	},
 	{
-		label: 'System',
-		items: [{ href: '/admin/settings', label: 'Settings', icon: SettingsIcon }]
+		label: 'Settings',
+		items: settingGroupIds.map((group) => ({
+			href: `/admin/settings/${group}`,
+			label: settingGroups[group].label,
+			icon: settingGroupIcons[group]
+		}))
 	}
 ];

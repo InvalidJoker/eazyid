@@ -1,7 +1,7 @@
 import { ORPCError } from '@orpc/server';
 import { z } from 'zod';
 import { deleteAssetByUrl, InvalidImageError, storeImage } from '#lib/server/assets/index.js';
-import { listSettingsForAdmin } from '#lib/server/settings/admin-view.js';
+import { getSettingGroupForAdmin } from '#lib/server/settings/admin-view.js';
 import { definitions, settingKeys, type SettingKey } from '#lib/server/settings/definitions.js';
 import {
 	getSettings,
@@ -9,6 +9,7 @@ import {
 	SettingLockedError,
 	updateSettings
 } from '#lib/server/settings/index.js';
+import { settingGroupIds } from '#lib/setting-groups.js';
 import { adminProcedure } from '../base';
 
 const changesSchema = z
@@ -38,11 +39,12 @@ async function saveSettings(changes: z.infer<typeof changesSchema>) {
 	}
 }
 
-export const list = adminProcedure.handler(() => listSettingsForAdmin());
+export const group = adminProcedure
+	.input(z.object({ group: z.enum(settingGroupIds) }))
+	.handler(({ input }) => getSettingGroupForAdmin(input.group));
 
 export const update = adminProcedure.input(changesSchema).handler(async ({ input }) => {
 	await saveSettings(input);
-	return listSettingsForAdmin();
 });
 
 export const uploadImage = adminProcedure
@@ -80,7 +82,7 @@ export const removeImage = adminProcedure
 	});
 
 export const settings = {
-	list,
+	group,
 	update,
 	uploadImage,
 	removeImage

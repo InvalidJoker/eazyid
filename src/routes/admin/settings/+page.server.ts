@@ -1,6 +1,6 @@
-import { listSettingsForAdmin } from '#lib/server/settings/admin-view.js';
-import type { PageServerLoad } from './$types';
+import { redirect } from '@sveltejs/kit';
+import { settingGroupIds } from '#lib/setting-groups.js';
 
-export const load: PageServerLoad = async () => {
-	return { groups: await listSettingsForAdmin() };
+export const load = () => {
+	redirect(307, `/admin/settings/${settingGroupIds[0]}`);
 };

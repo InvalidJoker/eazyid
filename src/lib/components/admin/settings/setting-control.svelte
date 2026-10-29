@@ -1,18 +1,35 @@
 <script lang="ts">
+	import LoginLayoutPicker from '#lib/components/login-layout-picker.svelte';
 	import { Input } from '#lib/components/ui/input/index.js';
 	import * as Select from '#lib/components/ui/select/index.js';
 	import { Switch } from '#lib/components/ui/switch/index.js';
+	import type { LoginLayout } from '#lib/login-layouts.js';
 	import type { AdminSetting } from '#lib/server/settings/admin-view.js';
 	import ImageControl from './image-control.svelte';
 	import UnsafeBadge from './unsafe-badge.svelte';
 
-	let { setting, onSave }: { setting: AdminSetting; onSave: (value: unknown) => void } = $props();
+	let {
+		setting,
+		groupValues,
+		onSave
+	}: {
+		setting: AdminSetting;
+		/** Values of the other settings in the group, for controls that preview them. */
+		groupValues: Record<string, unknown>;
+		onSave: (value: unknown) => void;
+	} = $props();
 
 	const locked = $derived(setting.source === 'env');
 	const selected = $derived(setting.options?.find((option) => option.value === setting.value));
 </script>
 
-{#if setting.kind === 'image'}
+{#if setting.kind === 'login-layout'}
+	<LoginLayoutPicker
+		bind:value={() => setting.value as LoginLayout, (layout) => onSave(layout)}
+		image={String(groupValues['auth.loginImage'] ?? '')}
+		disabled={locked}
+	/>
+{:else if setting.kind === 'image'}
 	<ImageControl settingKey={setting.key} value={String(setting.value)} disabled={locked} />
 {:else if setting.kind === 'boolean'}
 	<Switch

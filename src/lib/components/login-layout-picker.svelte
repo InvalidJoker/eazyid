@@ -2,8 +2,11 @@
 	import { loginLayoutDetails, loginLayouts, type LoginLayout } from '#lib/login-layouts.js';
 	import { cn } from '#lib/utils.js';
 
-	let { value = $bindable(), disabled = false }: { value: LoginLayout; disabled?: boolean } =
-		$props();
+	let {
+		value = $bindable(),
+		image = '',
+		disabled = false
+	}: { value: LoginLayout; image?: string; disabled?: boolean } = $props();
 </script>
 
 <div role="radiogroup" class="grid grid-cols-2 gap-3">
@@ -22,7 +25,11 @@
 		>
 			<div class="flex aspect-[4/3] overflow-hidden rounded-md border bg-background">
 				{#if layout === 'split'}
-					<div class="w-2/5 border-e bg-muted"></div>
+					<div class="relative w-2/5 overflow-hidden border-e bg-muted">
+						{#if image}
+							<img src={image} alt="" class="absolute inset-0 size-full object-cover" />
+						{/if}
+					</div>
 					<div class="flex flex-1 items-center justify-center">
 						<div class="h-2/5 w-3/5 rounded-sm border bg-card"></div>
 					</div>
