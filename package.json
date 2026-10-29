@@ -14,6 +14,8 @@
 		"format": "oxfmt",
 		"db:start": "docker compose up -d",
 		"auth:schema": "auth generate --config src/lib/server/auth/cli.ts --adapter drizzle --dialect postgresql --output src/lib/server/db/postgres/auth.schema.ts --yes && auth generate --config src/lib/server/auth/cli.ts --adapter drizzle --dialect sqlite --output src/lib/server/db/sqlite/auth.schema.ts --yes && oxfmt src/lib/server/db",
+		"db:push": "drizzle-kit push",
+		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate --config drizzle/postgres.config.ts && drizzle-kit generate --config drizzle/sqlite.config.ts"
 	},
 	"devDependencies": {

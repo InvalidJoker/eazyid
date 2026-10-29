@@ -3,7 +3,10 @@ import { dirname } from 'node:path';
 import { createClient } from '@libsql/client';
 import { drizzle } from 'drizzle-orm/libsql';
 import { migrate } from 'drizzle-orm/libsql/migrator';
+import { hasMigrations } from '../migrations';
 import * as schema from './schema';
+
+const migrationsFolder = 'drizzle/sqlite';
 
 export function connect(url: string) {
 	if (url.startsWith('file:')) {
@@ -15,6 +18,8 @@ export function connect(url: string) {
 	return {
 		db,
 		schema,
-		migrate: () => migrate(db, { migrationsFolder: 'drizzle/sqlite' })
+		migrate: async () => {
+			if (hasMigrations(migrationsFolder)) await migrate(db, { migrationsFolder });
+		}
 	};
 }
