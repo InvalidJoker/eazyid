@@ -1,3 +1,4 @@
+import AppWindowIcon from '@lucide/svelte/icons/app-window';
 import BuildingIcon from '@lucide/svelte/icons/building-2';
 import HardDriveIcon from '@lucide/svelte/icons/hard-drive';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
@@ -34,6 +35,10 @@ export const adminNavigation: NavSection[] = [
 	{
 		label: 'Directory',
 		items: [{ href: '/admin/users', label: 'Users', icon: UsersIcon }]
+	},
+	{
+		label: 'OIDC',
+		items: [{ href: '/admin/applications', label: 'Applications', icon: AppWindowIcon }]
 	},
 	{
 		label: 'Settings',
